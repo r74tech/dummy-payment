@@ -111,8 +111,6 @@ sequenceDiagram
 
     PaymentServer ->> CartService: POST /callback (token, transaction)
     CartService -->> PaymentServer: Webhook received successfully
-
-    CartService ->> User: Checkout completed + Payment captured successfully
 ```
 
 ---
