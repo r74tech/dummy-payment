@@ -35,11 +35,23 @@ def start_payment(request: PaymentRequest, access_token: str = Header(...)):
 def capture_payment(token: str):
     """支払いのキャプチャ（確定）"""
     transaction = get_transaction(token)
-    if not transaction or transaction["status"] != "pending":
+    
+    if not transaction:
+        raise HTTPException(status_code=404, detail="Transaction not found.")
+
+    # すでに 'captured' 状態ならば成功レスポンスを返す
+    if transaction["status"] == "captured":
+        return {"msg": "Payment already captured", "transaction": transaction}
+
+    if transaction["status"] != "pending":
         raise HTTPException(status_code=400, detail="Invalid capture request.")
+
+    # ステータスを 'captured' に更新
     transaction["status"] = "captured"
     store_transaction(token, transaction)
+
     return {"msg": "Payment captured", "transaction": transaction}
+
 
 @router.post("/refund/{token}")
 def refund_payment(token: str, refund: RefundRequest):

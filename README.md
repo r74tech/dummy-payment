@@ -65,14 +65,14 @@ The flow mimics a real-world e-commerce payment process with these steps:
 
 ```bash
 === Step 1: Get Access Token ===
-Access Token: L8LO31YVYMH6
+Access Token: 77JP65NMTT0B
 === Step 2: Add Item to Cart ===
 Cart Response: {"msg":"Item item001 added to cart","cart":{"item001":{"quantity":2,"price":100.0}}}
 === Step 3: Start Checkout ===
-Checkout Response: {"msg":"Checkout initiated","access_token":"L8LO31YVYMH6","amount":200.0}
-Payment Token: L8LO31YVYMH6
+Checkout Response: {"msg":"Checkout and capture completed","access_token":"77JP65NMTT0B","amount":200.0,"capture_response":{"msg":"Payment captured","token":"77JP65NMTT0B"}}
+Payment Token: 77JP65NMTT0B
 === Step 4: Capture Payment ===
-Capture Response: {"detail":"Invalid capture request."}
+Capture Response: {"msg":"Payment already captured","transaction":{"status":"captured","order_id":"order123","amount":200.0}}
 === Step 5: Send Webhook Notification ===
 Webhook Response: {"msg":"Webhook scheduled"}
 === Payment Flow Completed Successfully ===
