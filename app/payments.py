@@ -43,6 +43,5 @@ def refund_payment(token: str):
     transaction = get_transaction(token)
     if not transaction or transaction["status"] != "captured":
         raise HTTPException(status_code=400, detail="Refund not allowed.")
-    transaction["status"] = "refunded"
     store_transaction(token, transaction)
     return {"msg": "Refund successful", "transaction": transaction}
