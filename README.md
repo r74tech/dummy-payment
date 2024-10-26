@@ -86,9 +86,9 @@ INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
 INFO:     192.168.65.1:38645 - "POST /auth/token HTTP/1.1" 200 OK
 INFO:     192.168.65.1:27506 - "POST /cart/add HTTP/1.1" 200 OK
+INFO:     192.168.65.1:27507 - "POST /checkout HTTP/1.1" 200 OK
 INFO:     127.0.0.1:53820 - "POST /payments/start HTTP/1.1" 200 OK
 INFO:     127.0.0.1:53826 - "POST /payments/capture/YHPGUNHOXHO3 HTTP/1.1" 200 OK
-INFO:     192.168.65.1:27507 - "POST /checkout HTTP/1.1" 200 OK
 INFO:     127.0.0.1:52438 - "POST /callback HTTP/1.1" 200 OK
 Received Webhook: {'token': 'YHPGUNHOXHO3', 'transaction': {'status': 'captured', 'order_id': '2HXG07P5EU7R', 'amount': 200.0}}
 ```
