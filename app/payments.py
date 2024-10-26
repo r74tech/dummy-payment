@@ -1,7 +1,10 @@
 import json
-from fastapi import APIRouter, HTTPException, Header
+import requests
+
+from fastapi import APIRouter, HTTPException, Header, Request, BackgroundTasks
 from app.models import PaymentRequest, RefundRequest
 from app.redis_utils import redis_client
+
 
 router = APIRouter()
 
@@ -31,24 +34,36 @@ def start_payment(request: PaymentRequest, access_token: str = Header(...)):
         "status": "pending",
     }
 
+
 @router.post("/capture/{token}")
-def capture_payment(token: str):
-    """支払いのキャプチャ（確定）"""
+def capture_payment(token: str, background_tasks: BackgroundTasks, request: Request):
+    """Capture the payment and trigger the webhook"""
     transaction = get_transaction(token)
-    
+
     if not transaction:
         raise HTTPException(status_code=404, detail="Transaction not found.")
 
-    # すでに 'captured' 状態ならば成功レスポンスを返す
     if transaction["status"] == "captured":
         return {"msg": "Payment already captured", "transaction": transaction}
 
     if transaction["status"] != "pending":
         raise HTTPException(status_code=400, detail="Invalid capture request.")
 
-    # ステータスを 'captured' に更新
+    # Update the transaction status to captured
     transaction["status"] = "captured"
     store_transaction(token, transaction)
+
+    print("request.headers:", request.headers)
+
+    # **Corrected:** Use the incoming request headers to derive the correct host and port.
+    scheme = request.headers.get("X-Forwarded-Proto", request.url.scheme)
+    host = request.headers.get("Host", f"{request.client.host}:{request.url.port or 80}")
+
+    callback_url = f"{scheme}://{host}/callback"
+    print(f"Callback URL: {callback_url}")
+
+    # Schedule the webhook as a background task
+    background_tasks.add_task(send_webhook, token, transaction, callback_url)
 
     return {"msg": "Payment captured", "transaction": transaction}
 
@@ -62,3 +77,18 @@ def refund_payment(token: str, refund: RefundRequest):
     transaction["status"] = "refunded"
     store_transaction(token, transaction)
     return {"msg": "Refund successful", "transaction": transaction}
+
+def send_webhook(token: str, transaction: dict, callback_url: str):
+    """Webhook通知を指定のURLに送信"""
+    payload = {"token": token, "transaction": transaction}
+    try:
+        print(f"Sending webhook for {token} to {callback_url}")
+        response = requests.post(callback_url, json=payload)
+        if response.status_code == 200:
+            print(f"Webhook successfully sent for {token}")
+            redis_client.set(token, "notified", ex=86400)
+        else:
+            print(f"Failed to send webhook for {token}: {response.status_code}")
+    except requests.RequestException as e:
+        print(f"Error sending webhook: {e}")
+        redis_client.incr(f"{token}:retries")
