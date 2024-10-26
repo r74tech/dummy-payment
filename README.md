@@ -65,17 +65,32 @@ The flow mimics a real-world e-commerce payment process with these steps:
 
 ```bash
 === Step 1: Get Access Token ===
-Access Token: 77JP65NMTT0B
+Access Token: YHPGUNHOXHO3
 === Step 2: Add Item to Cart ===
 Cart Response: {"msg":"Item item001 added to cart","cart":{"item001":{"quantity":2,"price":100.0}}}
 === Step 3: Start Checkout ===
-Checkout Response: {"msg":"Checkout and capture completed","access_token":"77JP65NMTT0B","amount":200.0,"capture_response":{"msg":"Payment captured","token":"77JP65NMTT0B"}}
-Payment Token: 77JP65NMTT0B
-=== Step 4: Capture Payment ===
-Capture Response: {"msg":"Payment already captured","transaction":{"status":"captured","order_id":"order123","amount":200.0}}
-=== Step 5: Send Webhook Notification ===
-Webhook Response: {"msg":"Webhook scheduled"}
+Order ID: 2HXG07P5EU7R
+Payment Token: YHPGUNHOXHO3
 === Payment Flow Completed Successfully ===
+```
+
+Docker Compose Logs:
+```bash
+INFO:     Started server process [8]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
+INFO:     Started server process [7]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     192.168.65.1:38645 - "POST /auth/token HTTP/1.1" 200 OK
+INFO:     192.168.65.1:27506 - "POST /cart/add HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53820 - "POST /payments/start HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53826 - "POST /payments/capture/YHPGUNHOXHO3 HTTP/1.1" 200 OK
+INFO:     192.168.65.1:27507 - "POST /checkout HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52438 - "POST /callback HTTP/1.1" 200 OK
+Received Webhook: {'token': 'YHPGUNHOXHO3', 'transaction': {'status': 'captured', 'order_id': '2HXG07P5EU7R', 'amount': 200.0}}
 ```
 
 ---

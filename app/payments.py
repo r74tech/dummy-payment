@@ -53,14 +53,11 @@ def capture_payment(token: str, background_tasks: BackgroundTasks, request: Requ
     transaction["status"] = "captured"
     store_transaction(token, transaction)
 
-    print("request.headers:", request.headers)
-
     # **Corrected:** Use the incoming request headers to derive the correct host and port.
     scheme = request.headers.get("X-Forwarded-Proto", request.url.scheme)
     host = request.headers.get("Host", f"{request.client.host}:{request.url.port or 80}")
 
     callback_url = f"{scheme}://{host}/callback"
-    print(f"Callback URL: {callback_url}")
 
     # Schedule the webhook as a background task
     background_tasks.add_task(send_webhook, token, transaction, callback_url)

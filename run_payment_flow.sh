@@ -48,3 +48,4 @@ PAYMENT_TOKEN=$(echo "$CHECKOUT_RESPONSE" | jq -r '.access_token')
 echo "Order ID: $ORDER_ID"
 echo "Payment Token: $PAYMENT_TOKEN"
 
+echo === Payment Flow Completed Successfully ==="
