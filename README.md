@@ -93,6 +93,28 @@ INFO:     127.0.0.1:52438 - "POST /callback HTTP/1.1" 200 OK
 Received Webhook: {'token': 'YHPGUNHOXHO3', 'transaction': {'status': 'captured', 'order_id': '2HXG07P5EU7R', 'amount': 200.0}}
 ```
 
+```mermaid
+sequenceDiagram
+    participant User as User
+    participant CartService as Cart Service (Port 8001)
+    participant PaymentServer as Payment Server (Port 8000)
+
+    User ->> CartService: POST /cart/add (item_id, quantity, price)
+    CartService ->> User: Item added to cart (200 OK)
+
+    User ->> CartService: POST /checkout (access-token: <token>)
+    CartService ->> PaymentServer: POST /payments/start (order_id, amount, access-token)
+    PaymentServer -->> CartService: Payment initiated (access_token)
+
+    CartService ->> PaymentServer: POST /payments/capture/<access_token>
+    PaymentServer -->> CartService: Payment captured successfully
+
+    PaymentServer ->> CartService: POST /callback (token, transaction)
+    CartService -->> PaymentServer: Webhook received successfully
+
+    CartService ->> User: Checkout completed + Payment captured successfully
+```
+
 ---
 
 ## **Troubleshooting**
